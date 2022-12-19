@@ -1,0 +1,9 @@
+.gitignore
+__pycache__/
+
+# Example image files
+*.bmp
+*.jpg
+*.png
+*.pdf
+pages/*
