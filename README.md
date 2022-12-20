@@ -12,14 +12,16 @@ This script uses the [img2pdf](https://pypi.org/project/img2pdf/) package by Joh
 Below is the help message displayed by JPEG2PDF when the `-h` or `-?` arguments are used.
 
 ```
-usage: jpeg2pdf.py [-h] [-a name] [-t title] [-q quality] [--fit-horizontal]
-                   [--fit-vertical] [--fit-window] [--show-thumbnails]
-                   [-p format_string] [--first-page-number page]
-                   input_file [input_file ...] output_file
+usage: jpeg2pdf.py [-o output_file] [-h] [-a name] [-t title] [-q quality]
+                   [--fit-horizontal] [--fit-vertical] [--fit-window]
+                   [--show-thumbnails] [-p format_string]
+                   [--first-page-number page]
+                   input_file [input_file ...]
 
-positional arguments:
+file arguments:
   input_file            image files to be added to the PDF document
-  output_file           the PDF file to write
+  -o output_file, --output-file output_file
+                        the PDF file to write
 
 optional arguments:
   -h, --help, -?        show this help message and exit
