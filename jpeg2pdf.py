@@ -8,7 +8,7 @@
 # This program uses the img2pdf module:
 # https://pypi.org/project/img2pdf/
 
-DEBUG = True					# If True, print messages for debugging
+DEBUG = False					# If True, print messages for debugging
 								# purposes
 jpeg_compression_quality = 75	# Default JPEG compression quality value
 recompress_all_jpegs = False	# If True, always use recompressed JPEGs, even
@@ -49,58 +49,60 @@ def _parse_arguments(args):
 	argparser = argparse.ArgumentParser(add_help=False)
 
 	# Set positional arguments
-	argparser.add_argument('input_files', metavar='input_file', nargs='+',
-		help='image files to be added to the PDF document')
-	argparser.add_argument('output_file', nargs=1,
-		help='the PDF file to write')
+	argparser_group = argparser.add_argument_group('file arguments')
+	argparser_group.add_argument('input_files', metavar='input_file',
+		nargs='+', help='image files to be added to the PDF document')
+	argparser_group.add_argument('-o', '--output-file', metavar='output_file',
+		nargs=1, help='the PDF file to write')
 
-	argparser.add_argument('-h', '--help', '-?', action='help',
+	argparser_group = argparser.add_argument_group('optional arguments')
+	argparser_group.add_argument('-h', '--help', '-?', action='help',
 		help='show this help message and exit')
-	argparser.add_argument('-a', '--author', metavar='name',
+	argparser_group.add_argument('-a', '--author', metavar='name',
 		help='set the author of the PDF document')
-	argparser.add_argument('-t', '--title', metavar='title',
+	argparser_group.add_argument('-t', '--title', metavar='title',
 		help='set the title of the PDF document')
 
 	# Set JPEG compression settings
-	viewer_argparser = argparser.add_argument_group(
+	argparser_group = argparser.add_argument_group(
 		'JPEG compression settings (optional)',
 		description='These settings control the compression of images when \
 they are being converted to JPEG format.')
-	viewer_argparser.add_argument('-q', '--quality', metavar='quality',
+	argparser_group.add_argument('-q', '--quality', metavar='quality',
 		help=f'set the compression quality when (re)compressing images \
 (1=worst, 100=best); the default is {jpeg_compression_quality}')
 
 	# Set magnification arguments
-	viewer_argparser = argparser.add_argument_group(
+	argparser_group = argparser.add_argument_group(
 		'viewer settings (optional)',
 		description='These settings control how the PDF file is displayed \
 when it is opened in a PDF viewer.')
-	viewer_argparser.add_argument('--fit-horizontal',
+	argparser_group.add_argument('--fit-horizontal',
 		action='append_const', dest='magnification', const='FitH',
 		help='fit the page to the width of the window')
-	viewer_argparser.add_argument('--fit-vertical',
+	argparser_group.add_argument('--fit-vertical',
 		action='append_const', dest='magnification', const='FitV',
 		help='fit the page to the height of the window')
-	viewer_argparser.add_argument('--fit-window',
+	argparser_group.add_argument('--fit-window',
 		action='append_const', dest='magnification', const='Fit',
 		help='fit the entire page within the window')
 
 	# Set page mode arguments
-	viewer_argparser.add_argument('--show-thumbnails', action='append_const',
+	argparser_group.add_argument('--show-thumbnails', action='append_const',
 		dest='page_mode', const='UseThumbs',
 		help=f'show thumbnails for each page')
 
 	# Set page numbering arguments
-	page_numbering_argparser = argparser.add_argument_group(
+	argparser_group = argparser.add_argument_group(
 		'page numbering settings (optional)',
 		description='These settings control how the pages of the PDF file are \
 numbered and displayed.')
-	page_numbering_argparser.add_argument('-p', '--page-numbering',
+	argparser_group.add_argument('-p', '--page-numbering',
 		metavar='format_string', nargs=1,
 		help='set the formatting of page numbers (e.g. %%D for Arabic \
 numerals (1, 2, 3...), %%r for lower case Roman numerals (i, ii, iii...), \
 %%A for upper case letters (A, B, C...))')
-	page_numbering_argparser.add_argument('--first-page-number',
+	argparser_group.add_argument('--first-page-number',
 		metavar='page',
 		help='set the number of the first page of the PDF file')
 
@@ -240,6 +242,11 @@ quality (int): The compression quality of the JPEG image (1=worst, 100=best).
 args = _parse_arguments(sys.argv[1:])
 command_filename = os.path.basename(sys.argv[0])
 error_message_prefix = f'{command_filename}: error: '
+
+# An output file must be specified
+if args.output_file is None:
+	print(f'{error_message_prefix}no output file specified', file=sys.stderr)
+	quit()
 
 # If the output filename does not have an extension, then add a '.pdf'
 # extension to it
